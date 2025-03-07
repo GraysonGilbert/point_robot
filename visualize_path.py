@@ -1,0 +1,1 @@
+"""This code will visualize the point robot searching, and finding the optimal path from the start point to the goal ponint."""
