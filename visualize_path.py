@@ -1,7 +1,7 @@
 """This code will visualize the point robot searching, and finding the optimal path from the start point to the goal ponint."""
 
 import pygame
-import time
+#import time
 
 def read_map_data(filename):
     obstacles = []
@@ -10,6 +10,13 @@ def read_map_data(filename):
         for line in f:
             shapes = line.strip().split(", ")
             obstacle_type = shapes[0]
+
+            """
+            if obstacle_type == "map":
+                height, width = map(int, shapes[1:2])
+                color = tuple(map(int, shapes[2:5]))
+                obstacles.append(("map", height, width, color))
+            """
 
             if obstacle_type == "rect":
                 x, y, width, height = map(int, shapes[1:5])
