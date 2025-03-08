@@ -1,7 +1,17 @@
 """This code will visualize the point robot searching, and finding the optimal path from the start point to the goal ponint."""
 
 import pygame
-#import time
+import numpy as np
+
+pygame.init()
+
+# Constants
+MAP_WIDTH, MAP_HEIGHT = 1800, 500
+BACKGROUND = (0, 0, 0)
+ROBOT_COLOR = (0, 255, 0)
+OBSTACLE_COLOR = (255, 0, 0)
+CELL_SIZE = 10  # Size of each cell in the grid
+
 
 def read_map_data(filename):
     obstacles = []
@@ -10,13 +20,6 @@ def read_map_data(filename):
         for line in f:
             shapes = line.strip().split(", ")
             obstacle_type = shapes[0]
-
-            """
-            if obstacle_type == "map":
-                height, width = map(int, shapes[1:2])
-                color = tuple(map(int, shapes[2:5]))
-                obstacles.append(("map", height, width, color))
-            """
 
             if obstacle_type == "rect":
                 x, y, width, height = map(int, shapes[1:5])
@@ -34,14 +37,41 @@ def read_map_data(filename):
                 obstacles.append(("parallel", x1, y1, x2, y2, x3, y3, x4, y4, color))
     
     return obstacles
+
+def show_map_data(screen, obstacles):
+    for obstacle in obstacles:
+        if obstacle[0] == "rect":
+            _, x, y, width, height, color = obstacle
+            pygame.draw.rect(screen, color, (x, y, width, height))
+        if obstacle[0] == "circle":
+            _, x, y, radius, color = obstacle
+            pygame.draw.circle(screen, color, (x, y), radius)
+        if obstacle[0] == "parallel":
+            _, x1, y1, x2, y2, x3, y3, x4, y4, color = obstacle
+            pygame.draw.polygon(screen, color, [(x1, y1), (x2, y2), (x3, y3), (x4, y4)])
+
             
+def read_output_data(filename):
+    grid = []
+    with open(filename, "r") as f:
+        for line in f:
+            row = list(map(int, line.strip().split()))
+            grid.append(row)
+    return np.array(grid)
 
-pygame.init()
+"""Visualize the grid and the robot in a separate window."""
+def show_obstacle_sapce(grid, screen):
+    
 
-MAP_WIDTH, MAP_HEIGHT = 1800, 500
-BACKGROUND = (0, 0, 0)
+    # Draw the grid and obstacles
+    for y in range(grid.shape[0]):
+        for x in range(grid.shape[1]):
+            if grid[y, x] == -1:  # obstacle
+                pygame.draw.rect(screen, OBSTACLE_COLOR, (x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE))
+
 
 obstacles = read_map_data("map.txt")
+grid = read_output_data("obstacle_output_file.txt")
 
 screen = pygame.display.set_mode((MAP_WIDTH, MAP_HEIGHT))
 pygame.display.set_caption("Multiple Shapes from File")
@@ -55,20 +85,17 @@ while run:
     pygame.time.delay(30)
     screen.fill(BACKGROUND)
 
-    for obstacle in obstacles:
-        if obstacle[0] == "rect":
-            _, x, y, width, height, color = obstacle
-            pygame.draw.rect(screen, color, (x, y, width, height))
-        if obstacle[0] == "circle":
-            _, x, y, radius, color = obstacle
-            pygame.draw.circle(screen, color, (x, y), radius)
-        if obstacle[0] == "parallel":
-            _, x1, y1, x2, y2, x3, y3, x4, y4, color = obstacle
-            pygame.draw.polygon(screen, color, [(x1, y1), (x2, y2), (x3, y3), (x4, y4)])
+    show_obstacle_sapce(grid, screen)    # Show obstacle space with clearance
+    show_map_data(screen, obstacles)    # SHow map data of obstacles
 
     pygame.draw.rect(screen, (0, 255, 0), robot)
 
+    # Visualize the grid and the robot's position
+    
 
+    
+
+    """"
     key = pygame.key.get_pressed()
     if key[pygame.K_a] == True:
         robot.move_ip(-1, 0)
@@ -78,6 +105,7 @@ while run:
         robot.move_ip(0, 1)
     elif key[pygame.K_s] == True:
         robot.move_ip(0,-1)
+    """
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:

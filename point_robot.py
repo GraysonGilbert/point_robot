@@ -8,6 +8,8 @@ from collections import deque
 class Map:
     def __init__(self, filename, map_width, map_height, clearance=2):
 
+        self.map_utils = MapUtils()
+
         self.filename = filename
         self.map_width = map_width
         self.map_height = map_height
@@ -17,6 +19,32 @@ class Map:
         self.grid = np.zeros((map_height, map_width), dtype=int)
 
         self.map_obstacles = []
+    
+    """Checks to see if a start point is valid."""
+    def check_start_position(self, start_pt):
+        if 0 <= start_pt[0] < self.map_width and 0 <= start_pt[1] < self.map_height: # Checks to see if start point is within bounds of map
+            if self.grid[start_pt[0], start_pt[1]] != -1:
+                print("Valid start point!")
+                return True
+            else:
+                print("Start point located in obstacle! Try again.")
+                return False
+        else:
+            print("Start point out of map boundary! Try again.")
+            return False
+    
+    """Checks to see if a goal point is valid."""
+    def check_goal_position(self, goal_pt):
+        if 0 <= goal_pt[0] < self.map_width and 0 <= goal_pt[1] < self.map_height: # Checks to see if start point is within bounds of map
+            if self.grid[goal_pt[0], goal_pt[1]] != -1:
+                print("Valid goal point!")
+                return True
+            else:
+                print("Goal point located in obstacle! Try again.")
+                return False
+        else:
+            print("Goal point out of map boundary! Try again.")
+            return False
 
     def read_obstacles(self):
 
@@ -49,7 +77,7 @@ class Map:
                         "point is in obstacle space."
                         mark (pt_x, pt_y) in grid as -1
         """
-        print(obstacles)
+        #print(obstacles)
         x, y, depth = obstacles[0][:]
         
         x_width = x + 13
@@ -59,20 +87,20 @@ class Map:
         cutout2_x, cutout2_y = 20, 28
     
 
-        print(x, x_width, y, y_depth)
+        #print(x, x_width, y, y_depth)
 
         for pt_x in range(self.map_width):
-            if x - self.clearance <= pt_x <= x_width + self.clearance:
+            if x - self.clearance <= pt_x < x_width + self.clearance:
                 for pt_y in range(self.map_height):
-                    if y - self.clearance <= pt_y <= y_depth + self.clearance:
-                        if cutout_x + self.clearance < pt_x <= cutout_x + self.clearance + cutout_width:
-                            if cutout1_y + self.clearance < pt_y <= cutout1_y + cutout_height - self.clearance or cutout2_y + self.clearance < pt_y <= cutout2_y + cutout_height - self.clearance:
-                                print("cutout e", pt_y)
+                    if y - self.clearance <= pt_y < y_depth + self.clearance:
+                        if cutout_x + self.clearance <= pt_x < cutout_x + self.clearance + cutout_width:
+                            if cutout1_y + self.clearance <= pt_y < cutout1_y + cutout_height - self.clearance or cutout2_y + self.clearance <= pt_y < cutout2_y + cutout_height - self.clearance:
+                                #print("cutout e", pt_y)
                                 continue
                             
 
                         #point is in obstacle space
-                        self.grid[pt_x, pt_y] = -1
+                        self.grid[pt_y, pt_x] = -1
         
         """
         print(self.grid[13, 11])
@@ -84,6 +112,16 @@ class Map:
         print(self.grid[31, 31])
         """
 
+class MapUtils:
+    def __init__(self):
+        pass
+
+    def write_obstacle_file(self, grid):
+        
+        with open("obstacle_output_file.txt", "w") as f:
+            for row in grid:
+                f.write(" ".join(map(str, row)) + "\n")
+        
         
 
     
@@ -97,11 +135,36 @@ map_test = Map("map.txt", 180, 50)
 
 map_test.read_obstacles()
 
-start_point = input("Enter start position: ")
-goal_point = input("Enter goal position: ")
+#map_utils = MapUtils()
+map_test.map_utils.write_obstacle_file(map_test.grid)
+
+valid_start = False
+valid_goal = False
+
+"""
+while valid_start != True:
+
+    start_point = input("Enter start position as x, y: ")
+    start_point = list(map(int, start_point.split(", ")))
+    valid_start = map_test.check_start_position(start_point)
 
 
 
-#print(user_input)
+while valid_goal != True:
+
+    goal_point = input("Enter goal position as x, y: ")
+    goal_point = list(map(int, goal_point.split(", ")))
+    #print(goal_point)
+    valid_goal = map_test.check_goal_position(goal_point)
+    
+#print(start_point)
+
+"""
+
+
+
+
+
+
 
 
