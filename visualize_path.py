@@ -10,6 +10,7 @@ MAP_WIDTH, MAP_HEIGHT = 1800, 500
 BACKGROUND = (0, 0, 0)
 ROBOT_COLOR = (0, 255, 0)
 OBSTACLE_COLOR = (255, 0, 0)
+
 CELL_SIZE = 10  # Size of each cell in the grid
 
 
@@ -62,21 +63,38 @@ def read_output_data(filename):
 """Visualize the grid and the robot in a separate window."""
 def show_obstacle_space(grid, screen):
     
-
     # Draw the grid and obstacles
     for y in range(grid.shape[0]):
         for x in range(grid.shape[1]):
             if grid[y, x] == -1:  # obstacle
                 pygame.draw.rect(screen, OBSTACLE_COLOR, (x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE))
 
+def read_search_path_data(filename):
+    search_path = []
+    with open(filename, "r") as f:
+        for line in f:
+            row = list(map(int, line.strip().split(", ")))
+            search_path.append(row)
+    print(search_path)
+    return np.array(search_path)
+
+
+"""
+def show_search_space(search_path, screen):
+
+    for state in search_path:
+        print(state)
+        x = state[0]
+        y = state[1]
+        pygame.draw.rect(screen, OBSTACLE_COLOR, (x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE))
+"""
 
 obstacles = read_map_data("map.txt")
 grid = read_output_data("obstacle_output_file.txt")
+search_path = read_search_path_data("search_path.txt")
 
 screen = pygame.display.set_mode((MAP_WIDTH, MAP_HEIGHT))
 pygame.display.set_caption("Multiple Shapes from File")
-
-robot = pygame.Rect(100, 100, 10, 10)
 
 
 run = True
@@ -87,23 +105,31 @@ while run:
 
     show_obstacle_space(grid, screen)    # Show obstacle space with clearance
     show_map_data(screen, obstacles)    # SHow map data of obstacles
+    
+    """
+    The following code loops through the search_path 
+    and displays the robot searching for the goal position.
+    """
+    for state in search_path:
 
-    pygame.draw.rect(screen, (0, 255, 0), robot)
+        for event in pygame.event.get(): # Checking for mouse clicking EXIT button
+            if event.type == pygame.QUIT:
+                run = False
 
-    # Visualize the grid and the robot's position
+        #print(state)
+        x = state[0]
+        y = abs((MAP_HEIGHT // 10) - state[1])
+        pygame.draw.rect(screen, ROBOT_COLOR, (x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE))
+
+        pygame.display.update()
+        pygame.time.delay(1000)
     
 
-    
-    key = pygame.key.get_pressed()
-    if key[pygame.K_a] == True:
-        robot.move_ip(-1, 0)
-    elif key[pygame.K_d] == True:
-        robot.move_ip(1, 0)
-    elif key[pygame.K_w] == True:
-        robot.move_ip(0, 1)
-    elif key[pygame.K_s] == True:
-        robot.move_ip(0,-1)
-    
+    #show_search_space(search_path, screen)
+
+    #pygame.draw.rect(screen, (0, 255, 0), robot)
+
+
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -111,5 +137,4 @@ while run:
 
     pygame.display.update()
     
-
 pygame.quit()

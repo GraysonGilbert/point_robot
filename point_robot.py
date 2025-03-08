@@ -15,7 +15,6 @@ class Map:
         self.map_height = map_height
         self.clearance = clearance
 
-
         self.grid = np.zeros((map_height, map_width), dtype=int)
 
         self.map_obstacles = []
@@ -52,6 +51,7 @@ class Map:
 
         #self.grid[0, 1] = 1
         #print(self.grid)
+        self.boundary_obs_space()
 
         with open(self.filename, "r") as f:
             for line in f:
@@ -106,6 +106,14 @@ class Map:
                     obstacles.append([x, y, depth])
                     self.one_obs_space(obstacles)
 
+    """Defining boundary obstacle space using array slicing."""
+    def boundary_obs_space(self):
+
+        self.grid[:2, :] = -1
+        self.grid[-2:, :] = -1
+        self.grid[:, :2] = -1
+        self.grid[:, -2:] = -1
+
     """Defining E obstacle space using half-plane model."""
     def e_obs_space(self, obstacles):
         #Psuedo code:
@@ -124,10 +132,7 @@ class Map:
         y_depth = y + depth
         cutout_width, cutout_height = 8, 5
         cutout_x, cutout1_y = 20, 18
-        cutout2_x, cutout2_y = 20, 28
-    
-
-        #print(x, x_width, y, y_depth)
+        cutout2_y = 28
 
         for pt_x in range(self.map_width):
             if x - self.clearance <= pt_x < x_width + self.clearance:
@@ -141,13 +146,13 @@ class Map:
 
                         #point is in obstacle space
                         self.grid[pt_y, pt_x] = -1
-        
+
+    """Defining N obstacle space using half-plane model."""
     def n_obs_space(self, obstacles):
 
         x, y, depth = obstacles[-1][:]
         x_width = x + 15
         y_depth = y + depth
-
 
         for pt_x in range(self.map_width):
             if x - self.clearance <= pt_x < x_width + self.clearance:
@@ -157,9 +162,7 @@ class Map:
                         self.grid[pt_y, pt_x] = -1
                         """NOT DONE YET"""
 
-
-
-
+    """Defining P obstacle space using half-plane model and semi-algebraic model."""
     def p_obs_space(self, obstacles):
 
         x, y, depth = obstacles[-1][:]
@@ -180,7 +183,7 @@ class Map:
                     if (pt_x - circ_x) ** 2 + (pt_y - circ_y) ** 2 <= (circ_r + self.clearance) ** 2:
                         self.grid[pt_y, pt_x] = -1
                         
-
+    """Defining M obstacle space using half-plane model."""
     def m_obs_space(self, obstacles):
         x, y, depth = obstacles[-1][:]
         x_width = x + 25
@@ -195,7 +198,7 @@ class Map:
                         self.grid[pt_y, pt_x] = -1
                         """NOT DONE YET"""
                     
-
+    """Defining 6 obstacle space using half-plane model and semi-algebraic model."""
     def six_obs_space(self, obstacles):
         x, y, depth = obstacles[-1][:]
         x_width1 = x + 5
@@ -223,6 +226,7 @@ class Map:
                     if (pt_x - circ_x) ** 2 + (pt_y - circ_y) ** 2 <= (circ_r + self.clearance) ** 2:
                         self.grid[pt_y, pt_x] = -1
 
+    """Defining 1 obstacle space using half-plane model."""
     def one_obs_space(self, obstacles):
 
         x, y, depth = obstacles[-1][:]
@@ -235,7 +239,8 @@ class Map:
                     if y - self.clearance <= pt_y < y_depth + self.clearance:
                         
                         self.grid[pt_y, pt_x] = -1
-                        
+
+
 
 class MapUtils:
     def __init__(self):
@@ -246,7 +251,22 @@ class MapUtils:
         with open("obstacle_output_file.txt", "w") as f:
             for row in grid:
                 f.write(" ".join(map(str, row)) + "\n")
+
+class Solver:
+    def __init__(self):
+        pass
+
+
+
+class SolverUtils:   
+    def __init__(self):
+        pass  
+    def write_search_file(self, search_path):
         
+        with open("search_path.txt", "w") as f:
+            for row in search_path:
+                f.write(" ".join(map(str, row)) + "\n")
+
         
 
     
