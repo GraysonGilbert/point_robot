@@ -1,1 +1,82 @@
 """This code will visualize the point robot searching, and finding the optimal path from the start point to the goal ponint."""
+
+import pygame
+import time
+
+def read_map_data(filename):
+    obstacles = []
+
+    with open(filename, "r") as f:
+        for line in f:
+            shapes = line.strip().split(", ")
+            obstacle_type = shapes[0]
+
+            if obstacle_type == "rect":
+                x, y, width, height = map(int, shapes[1:5])
+                color = tuple(map(int, shapes[5:8]))
+                obstacles.append(("rect", x, y, width, height, color))
+            
+            if obstacle_type == "circle":
+                x, y, radius = map(int, shapes[1:4])
+                color = tuple(map(int, shapes[4:7]))
+                obstacles.append(("circle", x, y, radius, color))
+
+            if obstacle_type == "parallel":
+                x1, y1, x2, y2, x3, y3, x4, y4 = map(int, shapes[1:9])
+                color = tuple(map(int, shapes[9:12]))
+                obstacles.append(("parallel", x1, y1, x2, y2, x3, y3, x4, y4, color))
+    
+    return obstacles
+            
+
+pygame.init()
+
+MAP_WIDTH, MAP_HEIGHT = 1800, 500
+BACKGROUND = (0, 0, 0)
+
+obstacles = read_map_data("map.txt")
+
+screen = pygame.display.set_mode((MAP_WIDTH, MAP_HEIGHT))
+pygame.display.set_caption("Multiple Shapes from File")
+
+robot = pygame.Rect(100, 100, 10, 10)
+
+
+run = True
+while run:
+
+    pygame.time.delay(30)
+    screen.fill(BACKGROUND)
+
+    for obstacle in obstacles:
+        if obstacle[0] == "rect":
+            _, x, y, width, height, color = obstacle
+            pygame.draw.rect(screen, color, (x, y, width, height))
+        if obstacle[0] == "circle":
+            _, x, y, radius, color = obstacle
+            pygame.draw.circle(screen, color, (x, y), radius)
+        if obstacle[0] == "parallel":
+            _, x1, y1, x2, y2, x3, y3, x4, y4, color = obstacle
+            pygame.draw.polygon(screen, color, [(x1, y1), (x2, y2), (x3, y3), (x4, y4)])
+
+    pygame.draw.rect(screen, (0, 255, 0), robot)
+
+
+    key = pygame.key.get_pressed()
+    if key[pygame.K_a] == True:
+        robot.move_ip(-1, 0)
+    elif key[pygame.K_d] == True:
+        robot.move_ip(1, 0)
+    elif key[pygame.K_w] == True:
+        robot.move_ip(0, 1)
+    elif key[pygame.K_s] == True:
+        robot.move_ip(0,-1)
+
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            run = False
+
+    pygame.display.update()
+    
+
+pygame.quit()
