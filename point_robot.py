@@ -62,9 +62,49 @@ class Map:
                     x, y = map(int, (shapes[1:3]))
                     depth = int(shapes[4])
                     x, y, depth = x//10, y//10, depth//10   # Converting values to grid size
-                    print(x, y, depth)
+                    print("e_obs_space", x, y, depth)
                     obstacles.append([x, y, depth])
                     self.e_obs_space(obstacles)
+
+                if obstacle_type == "begin N":
+                    x, y = map(int, (shapes[1:3]))
+                    depth = int(shapes[4])
+                    x, y, depth = x//10, y//10, depth//10   # Converting values to grid size
+                    print("n_obs_sapce", x, y, depth)
+                    obstacles.append([x, y, depth])
+                    self.n_obs_space(obstacles)
+                
+                if obstacle_type == "begin P":
+                    x, y = map(int, (shapes[1:3]))
+                    depth = int(shapes[4])
+                    x, y, depth = x//10, y//10, depth//10   # Converting values to grid size
+                    print("p_obs_sapce", x, y, depth)
+                    obstacles.append([x, y, depth])
+                    self.p_obs_space(obstacles)
+
+                if obstacle_type == "begin M":
+                    x, y = map(int, (shapes[1:3]))
+                    depth = int(shapes[4])
+                    x, y, depth = x//10, y//10, depth//10   # Converting values to grid size
+                    print("m_obs_sapce", x, y, depth)
+                    obstacles.append([x, y, depth])
+                    self.m_obs_space(obstacles)
+
+                if obstacle_type == "begin 6":
+                    x, y = map(int, (shapes[1:3]))
+                    depth = int(shapes[4])
+                    x, y, depth = x//10, y//10, depth//10   # Converting values to grid size
+                    print("six_obs_sapce", x, y, depth)
+                    obstacles.append([x, y, depth])
+                    self.six_obs_space(obstacles)
+
+                if obstacle_type == "begin 1":
+                    x, y = map(int, (shapes[1:3]))
+                    depth = int(shapes[4])
+                    x, y, depth = x//10, y//10, depth//10   # Converting values to grid size
+                    print("one_obs_sapce", x, y, depth)
+                    obstacles.append([x, y, depth])
+                    self.one_obs_space(obstacles)
 
     """Defining E obstacle space using half-plane model."""
     def e_obs_space(self, obstacles):
@@ -78,7 +118,7 @@ class Map:
                         mark (pt_x, pt_y) in grid as -1
         """
         #print(obstacles)
-        x, y, depth = obstacles[0][:]
+        x, y, depth = obstacles[-1][:]
         
         x_width = x + 13
         y_depth = y + depth
@@ -102,15 +142,100 @@ class Map:
                         #point is in obstacle space
                         self.grid[pt_y, pt_x] = -1
         
-        """
-        print(self.grid[13, 11])
-        print(self.grid[21, 31])
-        print(self.grid[22, 31])
-        print(self.grid[23, 31])
-        print(self.grid[29, 30])
-        print(self.grid[30, 31])
-        print(self.grid[31, 31])
-        """
+    def n_obs_space(self, obstacles):
+
+        x, y, depth = obstacles[-1][:]
+        x_width = x + 15
+        y_depth = y + depth
+
+
+        for pt_x in range(self.map_width):
+            if x - self.clearance <= pt_x < x_width + self.clearance:
+                for pt_y in range(self.map_height):
+                    if y - self.clearance <= pt_y < y_depth + self.clearance:
+                        
+                        self.grid[pt_y, pt_x] = -1
+                        """NOT DONE YET"""
+
+
+
+
+    def p_obs_space(self, obstacles):
+
+        x, y, depth = obstacles[-1][:]
+        x_width = x + 5
+        y_depth = y + depth
+        circ_x = x + 5
+        circ_y = y + 5
+        circ_r = 5
+
+        for pt_x in range(self.map_width):
+            if x - self.clearance <= pt_x < x_width + self.clearance:
+                for pt_y in range(self.map_height):
+                    if y - self.clearance <= pt_y < y_depth + self.clearance:
+                        self.grid[pt_y, pt_x] = -1
+        for pt_x in range(self.map_width):
+            if x - self.clearance <= pt_x < x_width + circ_r + self.clearance:
+                for pt_y in range(self.map_height):
+                    if (pt_x - circ_x) ** 2 + (pt_y - circ_y) ** 2 <= (circ_r + self.clearance) ** 2:
+                        self.grid[pt_y, pt_x] = -1
+                        
+
+    def m_obs_space(self, obstacles):
+        x, y, depth = obstacles[-1][:]
+        x_width = x + 25
+        y_depth = y + depth
+
+
+        for pt_x in range(self.map_width):
+            if x - self.clearance <= pt_x < x_width + self.clearance:
+                for pt_y in range(self.map_height):
+                    if y - self.clearance <= pt_y < y_depth + self.clearance:
+                        
+                        self.grid[pt_y, pt_x] = -1
+                        """NOT DONE YET"""
+                    
+
+    def six_obs_space(self, obstacles):
+        x, y, depth = obstacles[-1][:]
+        x_width1 = x + 5
+        x_width2 = x + 13
+        y_depth = y + depth
+        circ_r = 9
+        circ_x = x + circ_r
+        circ_y = y_depth
+        
+        for pt_x in range(self.map_width):
+            if x - self.clearance <= pt_x < x_width1 + self.clearance:
+                for pt_y in range(self.map_height):
+                    if y - self.clearance <= pt_y < y_depth + self.clearance:
+                        self.grid[pt_y, pt_x] = -1
+
+        for pt_x in range(self.map_width):
+            if x - self.clearance <= pt_x < x_width2 + self.clearance:
+                for pt_y in range(self.map_height):
+                    if y - self.clearance <= pt_y < y_depth + self.clearance:
+                        self.grid[pt_y, pt_x] = -1
+                    
+        for pt_x in range(self.map_width):
+            if x - self.clearance <= pt_x < x + (2 * circ_r) + self.clearance:
+                for pt_y in range(self.map_height):
+                    if (pt_x - circ_x) ** 2 + (pt_y - circ_y) ** 2 <= (circ_r + self.clearance) ** 2:
+                        self.grid[pt_y, pt_x] = -1
+
+    def one_obs_space(self, obstacles):
+
+        x, y, depth = obstacles[-1][:]
+        x_width = x + 5
+        y_depth = y + depth
+
+        for pt_x in range(self.map_width):
+            if x - self.clearance <= pt_x < x_width + self.clearance:
+                for pt_y in range(self.map_height):
+                    if y - self.clearance <= pt_y < y_depth + self.clearance:
+                        
+                        self.grid[pt_y, pt_x] = -1
+                        
 
 class MapUtils:
     def __init__(self):

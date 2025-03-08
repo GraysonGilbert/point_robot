@@ -60,7 +60,7 @@ def read_output_data(filename):
     return np.array(grid)
 
 """Visualize the grid and the robot in a separate window."""
-def show_obstacle_sapce(grid, screen):
+def show_obstacle_space(grid, screen):
     
 
     # Draw the grid and obstacles
@@ -85,7 +85,7 @@ while run:
     pygame.time.delay(30)
     screen.fill(BACKGROUND)
 
-    show_obstacle_sapce(grid, screen)    # Show obstacle space with clearance
+    show_obstacle_space(grid, screen)    # Show obstacle space with clearance
     show_map_data(screen, obstacles)    # SHow map data of obstacles
 
     pygame.draw.rect(screen, (0, 255, 0), robot)
@@ -94,8 +94,6 @@ while run:
     
 
     
-
-    """"
     key = pygame.key.get_pressed()
     if key[pygame.K_a] == True:
         robot.move_ip(-1, 0)
@@ -105,7 +103,7 @@ while run:
         robot.move_ip(0, 1)
     elif key[pygame.K_s] == True:
         robot.move_ip(0,-1)
-    """
+    
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
