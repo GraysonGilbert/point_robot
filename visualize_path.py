@@ -120,7 +120,7 @@ while run:
         pygame.draw.rect(screen, ROBOT_COLOR, (x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE))
 
         pygame.display.update()
-        pygame.time.delay(200)
+        pygame.time.delay(5)
 
     """
     The following code loops through the nodePath.txt 
@@ -137,7 +137,7 @@ while run:
         pygame.draw.rect(screen, FINAL_PATH_COLOR, (x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE))
 
         pygame.display.update()
-        pygame.time.delay(500)
+        pygame.time.delay(50)
 
 
     for event in pygame.event.get():
@@ -147,6 +147,7 @@ while run:
 
     pygame.display.update()
     pygame.time.delay(1000)
+    pygame.quit()
 
     
 pygame.quit()

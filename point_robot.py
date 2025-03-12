@@ -3,8 +3,7 @@ import numpy as np
 from collections import deque
 
 
-"""Obstacle Definition:"""
-
+"""The Map class handles everything related to constructing the map including reading obstacle and building the obstacle space."""
 class Map:
     def __init__(self, filename, map_width, map_height, clearance=2):
 
@@ -16,11 +15,12 @@ class Map:
         self.clearance = clearance
 
         self.grid = np.zeros((map_height, map_width), dtype=int)
-        self.flipped_grid = np.flipud(self.grid)
+        
 
         self.map_obstacles = []
+        self.read_obstacles()
     
-
+        self.flipped_grid = np.flipud(self.grid)
         
     """Checks to see if a move is valid."""
     def is_move_valid(self, state):
@@ -98,18 +98,36 @@ class Map:
         self.grid[:, :2] = -1
         self.grid[:, -2:] = -1
 
+    """ 
+    def triangle_space(self, point, v1, v2, v3):
+        x, y = point
+        vertices = [v1, v2, v3]
+
+        def sign(p1, p2, p3):
+
+            return (p1[0] - p3[0]) * (p2[1] - p3[1]) - (p2[0] - p3[0]) * (p1[1] - p3[1])
+
+        # Check the sign of the area formed by the point and each triangle edge
+        d1 = sign(point, vertices[0], vertices[1])
+        d2 = sign(point, vertices[1], vertices[2])
+        d3 = sign(point, vertices[2], vertices[0])
+
+        # All the signs should be the same (either positive or negative), meaning the point is inside
+        if (d1 >= 0 and d2 >= 0 and d3 >= 0) or (d1 <= 0 and d2 <= 0 and d3 <= 0):
+            return True
+        else:
+            self.grid[y, x] = -1
+            return False  # Point is outside the triangle
+"""
+
+                
+        
+        
+         
+
     """Defining E obstacle space using half-plane model."""
     def e_obs_space(self, obstacles):
-        #Psuedo code:
-        """
-        for pt_x in range grid(x):
-            if grid(x) - clearance <= pt_x <= grid(x) + clearance:
-                for pt_y in range grid(y):
-                    if grid(y) - clearance <= pt_y <= grid(y) + clearance:
-                        "point is in obstacle space."
-                        mark (pt_x, pt_y) in grid as -1
-        """
-        #print(obstacles)
+
         x, y, depth = obstacles[-1][:]
         
         x_width = x + 13
@@ -126,7 +144,6 @@ class Map:
                             if cutout1_y + self.clearance <= pt_y < cutout1_y + cutout_height - self.clearance or cutout2_y + self.clearance <= pt_y < cutout2_y + cutout_height - self.clearance:
                                 #print("cutout e", pt_y)
                                 continue
-                            
 
                         #point is in obstacle space
                         self.grid[pt_y, pt_x] = -1
@@ -143,8 +160,11 @@ class Map:
                 for pt_y in range(self.map_height):
                     if y - self.clearance <= pt_y < y_depth + self.clearance:
                         
+                        #self.triangle_space([pt_x, pt_y], [410, 230], [410, 380], [460, 380])
+
                         self.grid[pt_y, pt_x] = -1
                         """NOT DONE YET"""
+                    
 
     """Defining P obstacle space using half-plane model and semi-algebraic model."""
     def p_obs_space(self, obstacles):
@@ -239,6 +259,7 @@ class MapUtils:
         with open("obstacle_output_file.txt", "w") as f:
             for row in grid:
                 f.write(" ".join(map(str, row)) + "\n")
+                
 
     """Writes obstacle file for map."""
     def write_flipped_obstacle_file(self, grid):
@@ -251,15 +272,18 @@ class MapUtils:
 
 """This class handles all the actions related gather the robot state in the map."""
 class PointRobot:
-    def __init__(self, node_state_i=np.array([0,0]), node_index_i=0, parent_node_index_i=None):
-
-        self.map = Map("map.txt", 180, 50)
+    def __init__(self, node_state_i=np.array([0,0]), node_index_i=0, parent_node_index_i=None, grid_map = None):
+        #if grid_map is None:
+            #self.map = Map("map.txt", 180, 50)
+        #else:
+        #    self.map = grid_map
+        self.map = grid_map
 
         self.node_index_i = node_index_i
         self.parent_node_index_i = parent_node_index_i
         self.node_state_i = node_state_i
 
-        self.state = self.get_state()
+        #self.state = self.get_state()
         self.possible_moves = self.get_possible_moves()
         
     
@@ -278,6 +302,7 @@ class PointRobot:
             start_point = list(map(int, start_point.split(", ")))
             valid_start = self.check_start_position(start_point)
             self.possible_moves = self.get_possible_moves()
+        return self.map.map_width, self.map.map_height, self.map.flipped_grid
     
     """Checks to see if a start point is valid."""
     def check_start_position(self, start_pt):
@@ -299,7 +324,7 @@ class PointRobot:
         state = self. node_state_i[-1]
         row = state[0]
         row = abs(self.map.map_height - row)
-        print(row)
+        #print(row)
 
 
     """MAY NOT NEED THIS"""
@@ -320,11 +345,13 @@ class PointRobot:
         
         #row, col = 3, 3
         row, col = self.get_state()
+
+        #print(f"Checking moves for state ({row}, {col})") 
         
         moves = {}
 
         move_options = {
-            "up": (1, 0), # May need some adjusting
+            "up": (1, 0), 
             "down": (-1, 0),
             "left": (0, -1),
             "right": (0, 1),
@@ -339,10 +366,12 @@ class PointRobot:
             
             #if self.map.flipped_grid[new_row, new_col]:
 
-
+            #print(self.map.flipped_grid[new_row, new_col])
             if self.map.flipped_grid[new_row, new_col] != -1:
                 moves[move] = (row_move, col_move)
-        print(moves)
+       
+
+        #print(f"Valid moves from ({row}, {col}): {moves}")
         return moves
 
         
@@ -354,6 +383,7 @@ class PointRobot:
             current_row, current_col = self.get_state()
             new_row, new_col = current_row + row_change, current_col + col_change
 
+            #print(f"Moving up: ({current_row}, {current_col}) → ({new_row}, {new_col})")  # Debug print
             return [new_row, new_col]
         
         return None
@@ -444,9 +474,10 @@ class PointRobot:
 
 """This class handles all the actions related to finding the optimal path to the goal state using Breadth First Search."""
 class SolverBFS:
-    def __init__(self, initial_state, goal_state=np.array([1,1])):
+    def __init__(self, initial_state, goal_state=np.array([1,1]), grid_map = None):
 
-        self.point_robot = PointRobot()
+        self.map = grid_map
+        #elf.point_robot = PointRobot(initial_state)
         #self.possible_moves = self.point_robot.get_possible_moves()
         #print(self.possible_moves)
         self.initial_state = initial_state
@@ -461,20 +492,17 @@ class SolverBFS:
         self.node_info = []
         self.nodes_explored = []
 
-
-
-    def get_goal_position(self, valid_goal=False):
+    def get_goal_position(self,  map_width, map_height, grid, valid_goal=False):
         while valid_goal != True:
 
             goal_point = input("Enter goal position as x, y: ")
             goal_point = list(map(int, goal_point.split(", ")))
-            valid_goal = self.check_goal_position(goal_point)
-            
+            valid_goal = self.check_goal_position(goal_point, map_width, map_height, grid)
 
     """Checks to see if a goal point is valid."""
-    def check_goal_position(self, goal_pt):
-        if 0 <= goal_pt[0] < self.point_robot.map.map_width and 0 <= goal_pt[1] < self.point_robot.map.map_height: # Checks to see if start point is within bounds of map
-            if self.point_robot.map.grid[goal_pt[0], goal_pt[1]] != -1:
+    def check_goal_position(self, goal_pt, map_width, map_height, grid):
+        if 0 <= goal_pt[1] < map_width and 0 <= goal_pt[0] < map_height: # Checks to see if start point is within bounds of map
+            if grid[goal_pt[0], goal_pt[1]] != -1:
 
                 self.goal_state = np.array(goal_pt)
                 print("Valid goal point!")
@@ -509,6 +537,8 @@ class SolverBFS:
             
             self.visited_states[tuple(current_state.node_state_i)] = current_state
 
+            #print(self.possible_moves)
+
             for move in current_state.possible_moves.keys():
                 
                 new_robot_state = None
@@ -531,10 +561,14 @@ class SolverBFS:
                     new_robot_state = current_state.move_down_right()
                 
                 if new_robot_state is not None:
-                    new_state = PointRobot(new_robot_state, self.node_counter, current_state.node_index_i)
+                    #print(f"Creating new state at: {new_robot_state}") 
+                    new_state = PointRobot(new_robot_state, self.node_counter, current_state.node_index_i, self.map)
+                    new_state.possible_moves = new_state.get_possible_moves()
+
+                    #print(f"New possible moves: {new_state.possible_moves}") 
 
                     if tuple(new_state.node_state_i) not in self.visited_states:
-                        new_state = PointRobot(new_robot_state, self.node_counter, current_state.node_index_i)
+                        new_state = PointRobot(new_robot_state, self.node_counter, current_state.node_index_i, self.map)
                         self.node_counter += 1
                         self.queue.append(new_state) 
                         self.visited_states[tuple(new_state.node_state_i)] = new_state
@@ -603,29 +637,18 @@ class SolverBFS:
 #map_test.map_utils.write_obstacle_file(map_test.grid)
 
 
-
-robot = PointRobot()
-robot_s = SolverBFS(robot)
-
-robot.map.read_obstacles()
-robot.map.map_utils.write_obstacle_file(robot.map.grid)
-robot.map.map_utils.write_flipped_obstacle_file(robot.map.grid)
+grid_map = Map("map.txt", 180, 50)
+robot = PointRobot(grid_map=grid_map)
+robot_s = SolverBFS(robot, grid_map=grid_map)
 
 
-
-robot.get_start_position()
-robot_s.get_goal_position()
-
-robot.get_possible_moves()
-#robot_s.search_path_bfs()
-
-#robot.get_state()
+grid_map.map_utils.write_obstacle_file(grid_map.grid)
+grid_map.map_utils.write_flipped_obstacle_file(grid_map.grid)
 
 
 
+map_width, map_height, grid = robot.get_start_position()
+robot_s.get_goal_position(map_width, map_height, grid)
 
 
-
-
-
-
+robot_s.search_path_bfs()
