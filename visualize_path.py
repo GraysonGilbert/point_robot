@@ -9,6 +9,7 @@ pygame.init()
 MAP_WIDTH, MAP_HEIGHT = 1800, 500
 BACKGROUND = (0, 0, 0)
 ROBOT_COLOR = (0, 255, 0)
+FINAL_PATH_COLOR = (255, 255, 0)
 OBSTACLE_COLOR = (255, 0, 0)
 
 CELL_SIZE = 10  # Size of each cell in the grid
@@ -69,29 +70,26 @@ def show_obstacle_space(grid, screen):
             if grid[y, x] == -1:  # obstacle
                 pygame.draw.rect(screen, OBSTACLE_COLOR, (x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE))
 
+"""Reads search_path.txt file for extract robot search path.
+Will need to update this once I make more progress on the 
+BFS implementation.
+"""
 def read_search_path_data(filename):
     search_path = []
     with open(filename, "r") as f:
         for line in f:
-            row = list(map(int, line.strip().split(", ")))
+            row = list(map(int, line.strip().split()))
             search_path.append(row)
-    print(search_path)
+    #print(search_path)
     return np.array(search_path)
 
 
-"""
-def show_search_space(search_path, screen):
-
-    for state in search_path:
-        print(state)
-        x = state[0]
-        y = state[1]
-        pygame.draw.rect(screen, OBSTACLE_COLOR, (x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE))
-"""
-
 obstacles = read_map_data("map.txt")
 grid = read_output_data("obstacle_output_file.txt")
-search_path = read_search_path_data("search_path.txt")
+
+search_path = read_search_path_data("Nodes.txt")
+optimal_path = read_search_path_data("nodePath.txt")
+#search_path = read_search_path_data("search_path.txt")
 
 screen = pygame.display.set_mode((MAP_WIDTH, MAP_HEIGHT))
 pygame.display.set_caption("Multiple Shapes from File")
@@ -107,7 +105,7 @@ while run:
     show_map_data(screen, obstacles)    # SHow map data of obstacles
     
     """
-    The following code loops through the search_path 
+    The following code loops through the Nodes.txt 
     and displays the robot searching for the goal position.
     """
     for state in search_path:
@@ -117,24 +115,38 @@ while run:
                 run = False
 
         #print(state)
-        x = state[0]
-        y = abs((MAP_HEIGHT // 10) - state[1])
+        x = state[1]
+        y = abs((MAP_HEIGHT // 10 - 1) - state[0])
         pygame.draw.rect(screen, ROBOT_COLOR, (x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE))
 
         pygame.display.update()
-        pygame.time.delay(1000)
-    
+        pygame.time.delay(200)
 
-    #show_search_space(search_path, screen)
+    """
+    The following code loops through the nodePath.txt 
+    and displays the optimal path to the goal.
+    """
+    for state in optimal_path:
+        for event in pygame.event.get(): # Checking for mouse clicking EXIT button
+            if event.type == pygame.QUIT:
+                run = False
 
-    #pygame.draw.rect(screen, (0, 255, 0), robot)
+        #print(state)
+        x = state[1]
+        y = abs((MAP_HEIGHT // 10 - 1) - state[0])
+        pygame.draw.rect(screen, FINAL_PATH_COLOR, (x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE))
 
+        pygame.display.update()
+        pygame.time.delay(500)
 
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
 
+
     pygame.display.update()
+    pygame.time.delay(1000)
+
     
 pygame.quit()
