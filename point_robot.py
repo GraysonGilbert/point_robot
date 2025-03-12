@@ -337,15 +337,14 @@ class PointRobot:
         for move, (row_move, col_move) in move_options.items(): # Checks that a move is valid, meaning it stays within the bounds of the 3x3 puzzle
             new_row, new_col = row + row_move, col + col_move
             
+            #if self.map.flipped_grid[new_row, new_col]:
+
+
             if self.map.flipped_grid[new_row, new_col] != -1:
                 moves[move] = (row_move, col_move)
-        #print(moves)
+        print(moves)
         return moves
 
-    def change_state(self, current_row, current_col, new_row, new_col):
-        new_state = self.node_state_i.copy()
-
-        index_1 = current_col
         
     """Moves robot state up by 1 position."""
     def move_up(self):
@@ -617,8 +616,8 @@ robot.map.map_utils.write_flipped_obstacle_file(robot.map.grid)
 robot.get_start_position()
 robot_s.get_goal_position()
 
-#robot.get_possible_moves()
-robot_s.search_path_bfs()
+robot.get_possible_moves()
+#robot_s.search_path_bfs()
 
 #robot.get_state()
 
