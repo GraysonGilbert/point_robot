@@ -14,7 +14,7 @@ OBSTACLE_COLOR = (255, 0, 0)
 
 CELL_SIZE = 10  # Size of each cell in the grid
 
-
+"""Reads map data and creates obstacle visuals."""
 def read_map_data(filename):
     obstacles = []
 
@@ -40,6 +40,7 @@ def read_map_data(filename):
     
     return obstacles
 
+"""Draws obstacles that are in the list of obstacles"""
 def show_map_data(screen, obstacles):
     for obstacle in obstacles:
         if obstacle[0] == "rect":
@@ -52,7 +53,7 @@ def show_map_data(screen, obstacles):
             _, x1, y1, x2, y2, x3, y3, x4, y4, color = obstacle
             pygame.draw.polygon(screen, color, [(x1, y1), (x2, y2), (x3, y3), (x4, y4)])
 
-            
+"""Reads output data from file."""
 def read_output_data(filename):
     grid = []
     with open(filename, "r") as f:
@@ -70,10 +71,7 @@ def show_obstacle_space(grid, screen):
             if grid[y, x] == -1:  # obstacle
                 pygame.draw.rect(screen, OBSTACLE_COLOR, (x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE))
 
-"""Reads search_path.txt file for extract robot search path.
-Will need to update this once I make more progress on the 
-BFS implementation.
-"""
+"""Reads search_path.txt file for extract robot search path."""
 def read_search_path_data(filename):
     search_path = []
     with open(filename, "r") as f:
@@ -84,11 +82,11 @@ def read_search_path_data(filename):
     return np.array(search_path)
 
 
-obstacles = read_map_data("map.txt")
-grid = read_output_data("obstacle_output_file.txt")
+obstacles = read_map_data("map.txt") # Read in obstacles from map.txt
+grid = read_output_data("obstacle_output_file.txt") # Read in obstalce space accounting for extra clearances
 
-search_path = read_search_path_data("Nodes.txt")
-optimal_path = read_search_path_data("nodePath.txt")
+search_path = read_search_path_data("Nodes.txt")    # Reads robot search path
+optimal_path = read_search_path_data("nodePath.txt")    # Reads the optimal path from the BFS search
 #search_path = read_search_path_data("search_path.txt")
 
 goal = optimal_path[-1]
