@@ -142,7 +142,7 @@ while run:
 
         pygame.draw.rect(screen, (255, 0, 0), (goal_x * CELL_SIZE, goal_y * CELL_SIZE, CELL_SIZE, CELL_SIZE))
         pygame.draw.rect(screen, (0, 0, 255), (start_x * CELL_SIZE, start_y * CELL_SIZE, CELL_SIZE, CELL_SIZE))
-        
+
         for event in pygame.event.get(): # Checking for mouse clicking EXIT button
             if event.type == pygame.QUIT:
                 run = False
@@ -162,9 +162,7 @@ while run:
 
 
     
-    pygame.time.delay(1000)
+    pygame.time.delay(5000)
     pygame.quit()
     
-
-    pygame.display.update()
 pygame.quit()
