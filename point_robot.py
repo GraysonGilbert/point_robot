@@ -614,18 +614,17 @@ class SolverBFS:
 
 """Creating Code to Run:"""
 
+"""Initializing objects"""
 grid_map = Map("map.txt", 180, 50)
 robot = PointRobot(grid_map=grid_map)
 robot_s = SolverBFS(robot, grid_map=grid_map)
 
-
+"""Writing obstacle space file"""
 grid_map.map_utils.write_obstacle_file(grid_map.grid)
-grid_map.map_utils.write_flipped_obstacle_file(grid_map.grid)
 
-
-
+"""Collecting start and goal positions"""
 map_width, map_height, grid = robot.get_start_position()
 robot_s.get_goal_position(map_width, map_height, grid)
 
-
+"""Implementing BFS search algorithm"""
 robot_s.search_path_bfs()
