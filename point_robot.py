@@ -21,21 +21,15 @@ class Map:
         self.read_obstacles()
     
         self.flipped_grid = np.flipud(self.grid)
-        
-    """Checks to see if a move is valid."""
-    def is_move_valid(self, state):
-        pass
 
     """Reads obstacles from map.txt to construct grid of obstacle space."""
     def read_obstacles(self):
 
         obstacles = []
 
-        #self.grid[0, 1] = 1
-        #print(self.grid)
         self.boundary_obs_space()
 
-        with open(self.filename, "r") as f:
+        with open(self.filename, "r") as f: # Searches through map file extracting obstacle information
             for line in f:
                 shapes = line.strip().split(", ")
                 obstacle_type = shapes[-1]
@@ -44,7 +38,7 @@ class Map:
                     x, y = map(int, (shapes[1:3]))
                     depth = int(shapes[4])
                     x, y, depth = x//10, y//10, depth//10   # Converting values to grid size
-                    print("e_obs_space", x, y, depth)
+                    #print("e_obs_space", x, y, depth)
                     obstacles.append([x, y, depth])
                     self.e_obs_space(obstacles)
 
@@ -52,7 +46,7 @@ class Map:
                     x, y = map(int, (shapes[1:3]))
                     depth = int(shapes[4])
                     x, y, depth = x//10, y//10, depth//10   # Converting values to grid size
-                    print("n_obs_sapce", x, y, depth)
+                    #print("n_obs_sapce", x, y, depth)
                     obstacles.append([x, y, depth])
                     self.n_obs_space(obstacles)
                 
@@ -60,7 +54,7 @@ class Map:
                     x, y = map(int, (shapes[1:3]))
                     depth = int(shapes[4])
                     x, y, depth = x//10, y//10, depth//10   # Converting values to grid size
-                    print("p_obs_sapce", x, y, depth)
+                    #print("p_obs_sapce", x, y, depth)
                     obstacles.append([x, y, depth])
                     self.p_obs_space(obstacles)
 
@@ -68,7 +62,7 @@ class Map:
                     x, y = map(int, (shapes[1:3]))
                     depth = int(shapes[4])
                     x, y, depth = x//10, y//10, depth//10   # Converting values to grid size
-                    print("m_obs_sapce", x, y, depth)
+                    #print("m_obs_sapce", x, y, depth)
                     obstacles.append([x, y, depth])
                     self.m_obs_space(obstacles)
 
@@ -76,7 +70,7 @@ class Map:
                     x, y = map(int, (shapes[1:3]))
                     depth = int(shapes[4])
                     x, y, depth = x//10, y//10, depth//10   # Converting values to grid size
-                    print("six_obs_sapce", x, y, depth)
+                    #print("six_obs_sapce", x, y, depth)
                     obstacles.append([x, y, depth])
                     self.six_obs_space(obstacles)
 
@@ -84,11 +78,11 @@ class Map:
                     x, y = map(int, (shapes[1:3]))
                     depth = int(shapes[4])
                     x, y, depth = x//10, y//10, depth//10   # Converting values to grid size
-                    print("one_obs_sapce", x, y, depth)
+                    #print("one_obs_sapce", x, y, depth)
                     obstacles.append([x, y, depth])
                     self.one_obs_space(obstacles)
 
-        self.flip_grid()
+        self.flip_grid()    # Flips grid of obstacles so (0, 0) is in the lower left corner
 
     """Defining boundary obstacle space using array slicing."""
     def boundary_obs_space(self):
@@ -98,7 +92,7 @@ class Map:
         self.grid[:, :2] = -1
         self.grid[:, -2:] = -1
 
-    """ 
+    """Defines the half plane obstacle space for a triangle."""
     def triangle_space(self, point, v1, v2, v3):
         x, y = point
         vertices = [v1, v2, v3]
@@ -107,23 +101,17 @@ class Map:
 
             return (p1[0] - p3[0]) * (p2[1] - p3[1]) - (p2[0] - p3[0]) * (p1[1] - p3[1])
 
-        # Check the sign of the area formed by the point and each triangle edge
         d1 = sign(point, vertices[0], vertices[1])
         d2 = sign(point, vertices[1], vertices[2])
         d3 = sign(point, vertices[2], vertices[0])
 
-        # All the signs should be the same (either positive or negative), meaning the point is inside
-        if (d1 >= 0 and d2 >= 0 and d3 >= 0) or (d1 <= 0 and d2 <= 0 and d3 <= 0):
+        
+        if (d1 >= 0 and d2 >= 0 and d3 >= 0) or (d1 <= 0 and d2 <= 0 and d3 <= 0): # If point is inside triangle, return true
             return True
         else:
             self.grid[y, x] = -1
             return False  # Point is outside the triangle
-"""
 
-                
-        
-        
-         
 
     """Defining E obstacle space using half-plane model."""
     def e_obs_space(self, obstacles):
@@ -142,7 +130,6 @@ class Map:
                     if y - self.clearance <= pt_y < y_depth + self.clearance:
                         if cutout_x + self.clearance <= pt_x < cutout_x + self.clearance + cutout_width:
                             if cutout1_y + self.clearance <= pt_y < cutout1_y + cutout_height - self.clearance or cutout2_y + self.clearance <= pt_y < cutout2_y + cutout_height - self.clearance:
-                                #print("cutout e", pt_y)
                                 continue
 
                         #point is in obstacle space
@@ -160,12 +147,20 @@ class Map:
                 for pt_y in range(self.map_height):
                     if y - self.clearance <= pt_y < y_depth + self.clearance:
                         
-                        #self.triangle_space([pt_x, pt_y], [410, 230], [410, 380], [460, 380])
+                        t_space1 = self.triangle_space([pt_x, pt_y], [43, 38], [43, 40], [44, 40])
+                        t_space2 = self.triangle_space([pt_x, pt_y], [42, 10], [43, 10], [43, 12])
+                        
+                        if t_space1 == True:
+                            self.grid[pt_y, pt_x] = 0
+                            continue
+
+                        if t_space2 == True:
+                            self.grid[pt_y, pt_x] = 0
+                            continue
 
                         self.grid[pt_y, pt_x] = -1
-                        """NOT DONE YET"""
+                       
                     
-
     """Defining P obstacle space using half-plane model and semi-algebraic model."""
     def p_obs_space(self, obstacles):
 
@@ -186,22 +181,39 @@ class Map:
                 for pt_y in range(self.map_height):
                     if (pt_x - circ_x) ** 2 + (pt_y - circ_y) ** 2 <= (circ_r + self.clearance) ** 2:
                         self.grid[pt_y, pt_x] = -1
-                        
+
+
     """Defining M obstacle space using half-plane model."""
     def m_obs_space(self, obstacles):
         x, y, depth = obstacles[-1][:]
         x_width = x + 25
         y_depth = y + depth
 
-
         for pt_x in range(self.map_width):
             if x - self.clearance <= pt_x < x_width + self.clearance:
                 for pt_y in range(self.map_height):
                     if y - self.clearance <= pt_y < y_depth + self.clearance:
+
+                        t_space1 = self.triangle_space([pt_x, pt_y], [78, 38], [78, 40], [79, 40])
+                        t_space2 = self.triangle_space([pt_x, pt_y], [88, 38], [88, 40], [89, 40])
+                        t_space3 = self.triangle_space([pt_x, pt_y], [78, 10], [89, 10], [83, 25])
+                        
+                        if t_space1 == True:
+                            self.grid[pt_y, pt_x] = 0
+                            continue
+
+                        if t_space2 == True:
+                            self.grid[pt_y, pt_x] = 0
+                            continue
+
+                        if t_space3 == True:
+                            self.grid[pt_y, pt_x] = 0
+                            continue
                         
                         self.grid[pt_y, pt_x] = -1
                         """NOT DONE YET"""
-                    
+
+
     """Defining 6 obstacle space using half-plane model and semi-algebraic model."""
     def six_obs_space(self, obstacles):
         x, y, depth = obstacles[-1][:]
@@ -229,6 +241,7 @@ class Map:
                 for pt_y in range(self.map_height):
                     if (pt_x - circ_x) ** 2 + (pt_y - circ_y) ** 2 <= (circ_r + self.clearance) ** 2:
                         self.grid[pt_y, pt_x] = -1
+
 
     """Defining 1 obstacle space using half-plane model."""
     def one_obs_space(self, obstacles):
@@ -273,20 +286,15 @@ class MapUtils:
 """This class handles all the actions related gather the robot state in the map."""
 class PointRobot:
     def __init__(self, node_state_i=np.array([0,0]), node_index_i=0, parent_node_index_i=None, grid_map = None):
-        #if grid_map is None:
-            #self.map = Map("map.txt", 180, 50)
-        #else:
-        #    self.map = grid_map
+
         self.map = grid_map
 
         self.node_index_i = node_index_i
         self.parent_node_index_i = parent_node_index_i
         self.node_state_i = node_state_i
 
-        #self.state = self.get_state()
         self.possible_moves = self.get_possible_moves()
         
-    
     """Allows for comparing robot state to determine if they are equal to one another."""
     def __eq__(self, other):
         return np.array_equal(self.node_state_i, other.node_state_i)
@@ -324,10 +332,8 @@ class PointRobot:
         state = self. node_state_i[-1]
         row = state[0]
         row = abs(self.map.map_height - row)
-        #print(row)
+        
 
-
-    """MAY NOT NEED THIS"""
     """Determine the current state of the robot in the map."""
     def get_state(self):
 
@@ -335,7 +341,6 @@ class PointRobot:
         
         row = state[0]
         col =  state[1]
-        #print(row, col)
         
         return row, col
 
@@ -343,11 +348,8 @@ class PointRobot:
     """Find all possible moves based on current robot state."""
     def get_possible_moves(self):
         
-        #row, col = 3, 3
         row, col = self.get_state()
 
-        #print(f"Checking moves for state ({row}, {col})") 
-        
         moves = {}
 
         move_options = {
@@ -364,17 +366,12 @@ class PointRobot:
         for move, (row_move, col_move) in move_options.items(): # Checks that a move is valid, meaning it stays within the bounds of the 3x3 puzzle
             new_row, new_col = row + row_move, col + col_move
             
-            #if self.map.flipped_grid[new_row, new_col]:
-
-            #print(self.map.flipped_grid[new_row, new_col])
             if self.map.flipped_grid[new_row, new_col] != -1:
                 moves[move] = (row_move, col_move)
        
-
-        #print(f"Valid moves from ({row}, {col}): {moves}")
         return moves
 
-        
+
     """Moves robot state up by 1 position."""
     def move_up(self):
 
@@ -383,7 +380,6 @@ class PointRobot:
             current_row, current_col = self.get_state()
             new_row, new_col = current_row + row_change, current_col + col_change
 
-            #print(f"Moving up: ({current_row}, {current_col}) → ({new_row}, {new_col})")  # Debug print
             return [new_row, new_col]
         
         return None
@@ -477,9 +473,7 @@ class SolverBFS:
     def __init__(self, initial_state, goal_state=np.array([1,1]), grid_map = None):
 
         self.map = grid_map
-        #elf.point_robot = PointRobot(initial_state)
-        #self.possible_moves = self.point_robot.get_possible_moves()
-        #print(self.possible_moves)
+
         self.initial_state = initial_state
         self.goal_state = goal_state
 
@@ -517,8 +511,6 @@ class SolverBFS:
 
     """Performs the BFS algorithm with backtracking to find the optimal path from initial state to goal state."""
     def search_path_bfs(self):
-        
-        #self.possible_moves = self.point_robot.get_possible_moves()
 
         while self.queue:
             current_state = self.queue.popleft()
@@ -536,8 +528,6 @@ class SolverBFS:
                 return self.node_path
             
             self.visited_states[tuple(current_state.node_state_i)] = current_state
-
-            #print(self.possible_moves)
 
             for move in current_state.possible_moves.keys():
                 
@@ -561,11 +551,8 @@ class SolverBFS:
                     new_robot_state = current_state.move_down_right()
                 
                 if new_robot_state is not None:
-                    #print(f"Creating new state at: {new_robot_state}") 
                     new_state = PointRobot(new_robot_state, self.node_counter, current_state.node_index_i, self.map)
                     new_state.possible_moves = new_state.get_possible_moves()
-
-                    #print(f"New possible moves: {new_state.possible_moves}") 
 
                     if tuple(new_state.node_state_i) not in self.visited_states:
                         new_state = PointRobot(new_robot_state, self.node_counter, current_state.node_index_i, self.map)
@@ -573,7 +560,7 @@ class SolverBFS:
                         self.queue.append(new_state) 
                         self.visited_states[tuple(new_state.node_state_i)] = new_state
 
-        print('Exited loop, this configuration is not solvable!')
+        print('No solution found!')
 
     """Generates a path using backtracking fromt the goal state back to the initial state."""
     def generate_path(self, goal_state):
@@ -622,20 +609,10 @@ class SolverBFS:
 
 
 
-        
-
-    
 
 
 
 """Creating Code to Run:"""
-#map_test = Map("map.txt", 180, 50)
-
-#map_test.read_obstacles()
-
-#map_utils = MapUtils()
-#map_test.map_utils.write_obstacle_file(map_test.grid)
-
 
 grid_map = Map("map.txt", 180, 50)
 robot = PointRobot(grid_map=grid_map)

@@ -91,8 +91,14 @@ search_path = read_search_path_data("Nodes.txt")
 optimal_path = read_search_path_data("nodePath.txt")
 #search_path = read_search_path_data("search_path.txt")
 
+goal = optimal_path[-1]
+goal_x, goal_y = goal[1], abs((MAP_HEIGHT // 10 -1 ) - goal[0]) 
+start = optimal_path[0]
+start_x, start_y = start[1], abs((MAP_HEIGHT // 10 -1) - start[0])
+
+
 screen = pygame.display.set_mode((MAP_WIDTH, MAP_HEIGHT))
-pygame.display.set_caption("Multiple Shapes from File")
+pygame.display.set_caption("ENPM661 MAP")
 
 
 run = True
@@ -101,14 +107,20 @@ while run:
     pygame.time.delay(30)
     screen.fill(BACKGROUND)
 
-    show_obstacle_space(grid, screen)    # Show obstacle space with clearance
+    #show_obstacle_space(grid, screen)    # Show obstacle space with clearance
     show_map_data(screen, obstacles)    # SHow map data of obstacles
+    
+
     
     """
     The following code loops through the Nodes.txt 
     and displays the robot searching for the goal position.
     """
+    
     for state in search_path:
+
+        pygame.draw.rect(screen, (255, 0, 0), (goal_x * CELL_SIZE, goal_y * CELL_SIZE, CELL_SIZE, CELL_SIZE))
+        pygame.draw.rect(screen, (0, 0, 255), (start_x * CELL_SIZE, start_y * CELL_SIZE, CELL_SIZE, CELL_SIZE))
 
         for event in pygame.event.get(): # Checking for mouse clicking EXIT button
             if event.type == pygame.QUIT:
@@ -120,13 +132,17 @@ while run:
         pygame.draw.rect(screen, ROBOT_COLOR, (x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE))
 
         pygame.display.update()
-        pygame.time.delay(5)
+        pygame.time.delay(1)
 
     """
     The following code loops through the nodePath.txt 
     and displays the optimal path to the goal.
     """
     for state in optimal_path:
+
+        pygame.draw.rect(screen, (255, 0, 0), (goal_x * CELL_SIZE, goal_y * CELL_SIZE, CELL_SIZE, CELL_SIZE))
+        pygame.draw.rect(screen, (0, 0, 255), (start_x * CELL_SIZE, start_y * CELL_SIZE, CELL_SIZE, CELL_SIZE))
+        
         for event in pygame.event.get(): # Checking for mouse clicking EXIT button
             if event.type == pygame.QUIT:
                 run = False
@@ -145,9 +161,10 @@ while run:
             run = False
 
 
-    pygame.display.update()
+    
     pygame.time.delay(1000)
     pygame.quit()
-
     
+
+    pygame.display.update()
 pygame.quit()
