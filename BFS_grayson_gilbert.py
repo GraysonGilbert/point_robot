@@ -211,7 +211,6 @@ class Map:
                             continue
                         
                         self.grid[pt_y, pt_x] = -1
-                        """NOT DONE YET"""
 
 
     """Defining 6 obstacle space using half-plane model and semi-algebraic model."""
@@ -326,13 +325,7 @@ class PointRobot:
         else:
             print("Start point out of map boundary! Try again.")
             return False
-
-    """MAY NOT NEED."""
-    def convert_row_state(self):
-        state = self. node_state_i[-1]
-        row = state[0]
-        row = abs(self.map.map_height - row)
-        
+      
 
     """Determine the current state of the robot in the map."""
     def get_state(self):
